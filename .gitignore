@@ -1,0 +1,4 @@
+node_modules
+.vscode-test/
+*.vsix
+D:\Project\llm-ai-copilot\local_llm_server\venv/*
