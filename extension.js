@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+const axios = require('axios')
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -13,22 +14,34 @@ function activate(context) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "llm-ai-copilot" is now active!');
+	let disposable = vscode.commands.registerCommand('extension.getLocalCopilotSuggestions', async function () {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showInformationMessage('Open a file first to get coding suggestions.');
+            return;
+        }
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('llm-ai-copilot.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
+        const selection = editor.selection;
+        const selectedText = editor.document.getText(selection);
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from llm-ai-copilot!');
-	});
+        try {
+            const response = await axios.post('http://localhost:5000/suggest', { text: selectedText });
+            const suggestion = response.data.suggestion;
 
-	context.subscriptions.push(disposable);
+            editor.edit(editBuilder => {
+                editBuilder.insert(selection.end, `\n${suggestion}`);
+            });
+        } catch (error) {
+            vscode.window.showErrorMessage('Error fetching suggestions from the local LLM.');
+            console.error(error);
+        }
+    });
+
+    context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 function deactivate() {}
+
 
 module.exports = {
 	activate,

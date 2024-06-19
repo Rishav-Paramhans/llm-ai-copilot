@@ -9,17 +9,21 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:extension.getllmaicopilot"
+  ],
   "main": "./extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "llm-ai-copilot.helloWorld",
-        "title": "Hello World"
+        "command": "llm-ai-copilot.getllmaicopilot",
+        "title": "LLM AI Copilot"
       }
     ]
   },
   "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
     "lint": "eslint .",
     "pretest": "npm run lint",
     "test": "vscode-test"
