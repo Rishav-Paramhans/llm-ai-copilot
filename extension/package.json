@@ -10,13 +10,13 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.getllmaicopilot"
+    "onCommand:extension.getLocalCopilotSuggestions"
   ],
   "main": "./extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "llm-ai-copilot.getllmaicopilot",
+        "command": "extension.getLocalCopilotSuggestions",
         "title": "LLM AI Copilot"
       }
     ]
