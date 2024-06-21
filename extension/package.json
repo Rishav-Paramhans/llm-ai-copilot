@@ -19,7 +19,16 @@
         "command": "extension.getLocalCopilotSuggestions",
         "title": "LLM AI Copilot"
       }
+    ],
+    "keybindings": [
+        {
+            "command": "extension.getLocalCopilotSuggestions",
+            "key": "ctrl+shift+e",
+            "mac": "cmd+shift+e",
+            "when": "editorTextFocus"
+        }
     ]
+    
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

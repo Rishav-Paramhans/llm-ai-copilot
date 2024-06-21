@@ -22,12 +22,16 @@ class SuggestionRequest(BaseModel):
 @app.post("/suggest")
 async def suggest_code(request: SuggestionRequest):
     inputs = tokenizer(request.text, return_tensors="pt", padding=True, truncation=True).to(device)
-    # Generate the output while setting pad_token_id to eos_token_id
+    # Generate the output with a higher max length and setting pad_token_id to eos_token_id
     outputs = model.generate(
-        inputs["input_ids"], 
-        attention_mask=inputs["attention_mask"], 
-        max_new_tokens=50, 
-        pad_token_id=tokenizer.eos_token_id
+        inputs["input_ids"],
+        attention_mask=inputs["attention_mask"],
+        max_length=2048,  # Increase the max_length for longer responses
+        pad_token_id=tokenizer.eos_token_id,
+        do_sample=True,  # Enables sampling
+        top_k=50,        # Consider the top 50 tokens at each step (for diversity)
+        top_p=0.95,      # Consider the top 95% of the probability mass (for diversity)
+        num_return_sequences=1  # Generate only one sequence
     )
     suggestion = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return {"suggestion": suggestion}
