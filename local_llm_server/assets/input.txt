@@ -1,1 +1,22 @@
-"Write an Openscrnario xml code for an ego vehicle moving on a straight road with 30kmph speed"
+LLM-AI_COPILOT/
+├── extension/
+│   ├── src/
+│   │   ├── client.ts
+│   │   ├── extension.ts
+│   │   └── ...other extension files
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── ...other extension-related files
+├── server/
+│   ├── src/
+│   │   ├── server.ts
+│   │   └── ...other server files
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── ...other server-related files
+└── local_llm_server/
+    ├── model.py
+    └── ...other Python files
+
+
+Folder structure
