@@ -10,6 +10,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onLanguage:openscenario",
     "onCommand:extension.getLocalCopilotSuggestions"
   ],
   "main": "./extension.js",
@@ -21,14 +22,27 @@
       }
     ],
     "keybindings": [
-        {
-            "command": "extension.getLocalCopilotSuggestions",
-            "key": "ctrl+shift+e",
-            "mac": "cmd+shift+e",
-            "when": "editorTextFocus"
-        }
+      {
+        "command": "extension.getLocalCopilotSuggestions",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorTextFocus"
+      }
+    ],
+    "languages": [
+      {
+        "id": "openscenario",
+        "extensions": [".xosc"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "openscenario",
+        "scopeName": "source.openscenario",
+        "path": "./syntaxes/openscenario.tmLanguage.json"
+      }
     ]
-    
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -49,4 +63,5 @@
   "dependencies": {
     "axios": "^1.7.2"
   }
+
 }
