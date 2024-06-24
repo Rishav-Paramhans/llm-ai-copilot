@@ -1,8 +1,14 @@
+const path = require('path');
 const vscode = require('vscode');
 const axios = require('axios');
+const { LanguageClient, TransportKind } = require('vscode-languageclient');
+
+let client;
 
 function activate(context) {
     console.log('Congratulations, your extension "llm-ai-copilot" is now active!');
+    
+    // Register command for getting local copilot suggestions
     let disposable = vscode.commands.registerCommand('extension.getLocalCopilotSuggestions', async function () {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
@@ -45,9 +51,42 @@ function activate(context) {
     });
 
     context.subscriptions.push(disposable);
+
+    // Language Server setup
+    let serverModule = context.asAbsolutePath(path.join('server', 'server.js'));
+    let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
+
+    let serverOptions = {
+        run: { module: serverModule, transport: TransportKind.ipc },
+        debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
+    };
+
+    let clientOptions = {
+        documentSelector: [
+            { scheme: 'file', language: 'openscenario' },
+            { scheme: 'file', language: 'opendrive' }
+        ],
+        synchronize: {
+            configurationSection: 'openscenarioLanguageServer',
+        }
+    };
+
+    client = new LanguageClient(
+        'openscenarioLanguageServer',
+        'OpenSCENARIO Language Server',
+        serverOptions,
+        clientOptions
+    );
+
+    client.start();
 }
 
-function deactivate() {}
+function deactivate() {
+    if (!client) {
+        return undefined;
+    }
+    return client.stop();
+}
 
 module.exports = {
     activate,

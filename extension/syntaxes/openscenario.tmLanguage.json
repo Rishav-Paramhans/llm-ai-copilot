@@ -1,0 +1,83 @@
+{
+    "scopeName": "source.openscenario",
+    "patterns": [
+      {
+        "begin": "<!--",
+        "beginCaptures": {
+          "0": {
+            "name": "punctuation.definition.comment.xml"
+          }
+        },
+        "end": "-->",
+        "endCaptures": {
+          "0": {
+            "name": "punctuation.definition.comment.xml"
+          }
+        },
+        "name": "comment.block.xml"
+      },
+      {
+        "name": "meta.tag.xml",
+        "begin": "<\\??(\\w+)",
+        "beginCaptures": {
+          "1": {
+            "name": "entity.name.tag.xml"
+          }
+        },
+        "end": "\\?>|>",
+        "endCaptures": {
+          "0": {
+            "name": "punctuation.definition.tag.xml"
+          }
+        },
+        "patterns": [
+          {
+            "include": "#tag-stuff"
+          }
+        ]
+      }
+    ],
+    "repository": {
+      "tag-stuff": {
+        "patterns": [
+          {
+            "name": "entity.other.attribute-name.xml",
+            "match": "\\b(\\w+)\\b"
+          },
+          {
+            "name": "string.quoted.double.xml",
+            "begin": "\"",
+            "beginCaptures": {
+              "0": {
+                "name": "punctuation.definition.string.begin.xml"
+              }
+            },
+            "end": "\"",
+            "endCaptures": {
+              "0": {
+                "name": "punctuation.definition.string.end.xml"
+              }
+            }
+          },
+          {
+            "name": "string.quoted.single.xml",
+            "begin": "'",
+            "beginCaptures": {
+              "0": {
+                "name": "punctuation.definition.string.begin.xml"
+              }
+            },
+            "end": "'",
+            "endCaptures": {
+              "0": {
+                "name": "punctuation.definition.string.end.xml"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "name": "OpenSCENARIO",
+    "scopeName": "source.openscenario"
+  }
+  
