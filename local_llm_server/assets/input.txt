@@ -19,4 +19,5 @@ LLM-AI_COPILOT/
     └── ...other Python files
 
 
-Folder structure
+Folder structure changes
+
