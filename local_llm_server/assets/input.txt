@@ -1,23 +1,40 @@
 LLM-AI_COPILOT/
 ├── extension/
 │   ├── src/
-│   │   ├── client.ts
-│   │   ├── extension.ts
-│   │   └── ...other extension files
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── ...other extension-related files
+│   │   ├── client/
+│   │   │   ├── extension.js
+│   │   │   └── launch.js
+│   │   ├── syntaxes/
+│   │   │   └── openscenario.tmLanguage.json
+│   │   ├── test/
+│   │   │   └── extension.test.js
+│   │   ├── .eslintrc.json
+│   │   ├── .vscodeignore
+│   │   ├── CHANGELOG.md
+│   │   ├── jsconfig.json
+│   │   ├── language-configuration.json
+│   │   ├── package-lock.json
+│   │   ├── package.json
+│   │   ├── server.js
+│   │   └── vsc-extension-quickstart.md
+├── local_llm_server/
+│   ├── local_llm_server.py
+│   ├── assets/
+│   └── venv/
 ├── server/
 │   ├── src/
-│   │   ├── server.ts
-│   │   └── ...other server files
+│   │   ├── server.js
+│   │   ├── handlers.js
+│   │   └── utils.js
+│   ├── node_modules/
+│   ├── package-lock.json
 │   ├── package.json
-│   ├── tsconfig.json
-│   └── ...other server-related files
-└── local_llm_server/
-    ├── model.py
-    └── ...other Python files
+│   ├── .eslintrc.json
+│   └── .vscodeignore
+├── node_modules/
+├── package-lock.json
+├── package.json
+└── README.md
 
 
-Folder structure changes
-
+This should be the actual folder structure

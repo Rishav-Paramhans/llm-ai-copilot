@@ -1,4 +1,22 @@
-node_modules
-.vscode-test/
-*.vsix
-D:\Project\llm-ai-copilot\local_llm_server\venv/*
+# Node.js
+node_modules/
+
+# Visual Studio Code
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+
+# Virtual environment
+venv/
+
+# Logs
+*.log
+
+# Dependency directories
+extension/node_modules/
+server/node_modules/
