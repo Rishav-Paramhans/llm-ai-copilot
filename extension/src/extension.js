@@ -7,7 +7,7 @@ let client;
 
 function activate(context) {
     console.log('Congratulations, your extension "llm-ai-copilot" is now active!');
-    
+
     // Register command for getting local copilot suggestions
     let disposable = vscode.commands.registerCommand('extension.getLocalCopilotSuggestions', async function () {
         const editor = vscode.window.activeTextEditor;
@@ -50,10 +50,44 @@ function activate(context) {
         }
     });
 
+    // Register the command for selecting .xosc files
+    let selectXOSCFile = vscode.commands.registerCommand('extension.selectXOSCFile', async () => {
+        const fileUri = await vscode.window.showOpenDialog({
+            canSelectMany: false,
+            openLabel: 'Select .xosc File',
+            filters: {
+                'OpenScenario Files': ['xosc']
+            }
+        });
+
+        if (fileUri && fileUri[0]) {
+            vscode.window.showInformationMessage('Selected XOSC File: ' + fileUri[0].fsPath);
+            // Here you can add code to process the selected .xosc file
+        }
+    });
+
+    // Register the command for selecting .xodr files
+    let selectXODRFile = vscode.commands.registerCommand('extension.selectXODRFile', async () => {
+        const fileUri = await vscode.window.showOpenDialog({
+            canSelectMany: false,
+            openLabel: 'Select .xodr File',
+            filters: {
+                'OpenDRIVE Files': ['xodr']
+            }
+        });
+
+        if (fileUri && fileUri[0]) {
+            vscode.window.showInformationMessage('Selected XODR File: ' + fileUri[0].fsPath);
+            // Here you can add code to process the selected .xodr file
+        }
+    });
+
     context.subscriptions.push(disposable);
+    context.subscriptions.push(selectXOSCFile);
+    context.subscriptions.push(selectXODRFile);
 
     // Language Server setup
-    let serverModule = context.asAbsolutePath(path.join('server', 'server.js'));
+    let serverModule = context.asAbsolutePath(path.join('server', 'src', 'server.js'));
     let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
 
     let serverOptions = {

@@ -1,9 +1,8 @@
 LLM-AI_COPILOT/
 ├── extension/
-│   ├── src/
-│   │   ├── client/
-│   │   │   ├── extension.js
-│   │   │   └── launch.js
+│   ├── src/ 
+│   │   ├── extension.js
+│   │   └── launch.js
 │   │   ├── syntaxes/
 │   │   │   └── openscenario.tmLanguage.json
 │   │   ├── test/

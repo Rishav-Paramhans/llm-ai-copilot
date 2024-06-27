@@ -1,5 +1,85 @@
 {
+  "name": "llm-ai-copilot",
+  "displayName": "LLM AI Copilot",
+  "description": "An AI copilot for providing local coding suggestions",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:extension.getLocalCopilotSuggestions",
+    "onCommand:extension.selectXOSCFile",
+    "onCommand:extension.selectXODRFile",
+    "onLanguage:openscenario",
+    "onLanguage:opendrive"
+  ],
+  "main": "./extension/src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.getLocalCopilotSuggestions",
+        "title": "Get Local Copilot Suggestions"
+      },
+      {
+        "command": "extension.selectXOSCFile",
+        "title": "Select XOSC File"
+      },
+      {
+        "command": "extension.selectXODRFile",
+        "title": "Select XODR File"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "extension.getLocalCopilotSuggestions",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorTextFocus"
+      }
+    ],
+    "languages": [
+      {
+        "id": "openscenario",
+        "extensions": [
+          ".xosc"
+        ],
+        "configuration": "./extension/src/language-configuration.json"
+      },
+      {
+        "id": "opendrive",
+        "extensions": [
+          ".xodr"
+        ],
+        "configuration": "./extension/src/language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "openscenario",
+        "scopeName": "source.openscenario",
+        "path": "./extension/src/syntaxes/openscenario.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.90.0",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.4.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.5"
+  },
   "dependencies": {
-    "vscode-languageserver": "^9.0.1"
+    "axios": "^1.7.2",
+    "vscode-languageclient": "^8.1.0"
   }
 }
