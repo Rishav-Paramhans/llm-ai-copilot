@@ -88,6 +88,7 @@ function activate(context) {
 
     // Language Server setup
     let serverModule = context.asAbsolutePath(path.join('server', 'src', 'server.js'));
+    console.log('Server module path:', serverModule)
     let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
 
     let serverOptions = {
@@ -113,6 +114,9 @@ function activate(context) {
     );
 
     client.start();
+
+
+    
 }
 
 function deactivate() {
