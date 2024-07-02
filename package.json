@@ -44,7 +44,12 @@
         "key": "ctrl+shift+e",
         "mac": "cmd+shift+e",
         "when": "editorTextFocus"
-      }
+      },
+      {
+        "command": "extension.runEsmini",
+        "key": "ctrl+q",
+        "when": "editorTextFocus"
+    }
     ],
     "languages": [
       {

@@ -1,5 +1,4 @@
 const vscode = require('vscode');
-const path = require('path');
 const { execFile } = require('child_process');
 const fs = require('fs');
 
@@ -57,6 +56,14 @@ function activate(context) {
         }
     });
 
+    // Default flags
+    const defaultFlags = {
+        '--aa_mode': '4',
+        '--camera_mode': 'orbit',
+        '--osi_file': 'on',
+        '--window': '60 60 1024 576'
+    };
+
     // Command to run esmini with the selected file
     let runEsmini = vscode.commands.registerCommand('extension.runEsmini', async () => {
         const xoscFileUri = await vscode.window.showOpenDialog({
@@ -75,11 +82,15 @@ function activate(context) {
 
             const xoscFilePath = xoscFileUri[0].fsPath;
 
-            const esminiArgs = [
-                '--window', '60', '60', '1024', '576',
-                '--osc', xoscFilePath,
-                '--osi_file', 'on'
+            // Collect all flags and arguments
+            let esminiArgs = [
+                '--osc', xoscFilePath
             ];
+
+            // Add default flags
+            for (const flag in defaultFlags) {
+                esminiArgs.push(flag, defaultFlags[flag]);
+            }
 
             execFile(esminiPath, esminiArgs, (error, stdout, stderr) => {
                 if (error) {
