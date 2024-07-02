@@ -1,14 +1,11 @@
-const path = require('path');
 const vscode = require('vscode');
-const axios = require('axios');
-const { LanguageClient, TransportKind } = require('vscode-languageclient');
-
-let client;
+const path = require('path');
+const { execFile } = require('child_process');
+const fs = require('fs');
 
 function activate(context) {
     console.log('Congratulations, your extension "llm-ai-copilot" is now active!');
 
-    // Register command for getting local copilot suggestions
     let disposable = vscode.commands.registerCommand('extension.getLocalCopilotSuggestions', async function () {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
@@ -20,11 +17,9 @@ function activate(context) {
         const selection = editor.selection;
         const selectedText = document.getText(selection);
 
-        // Get the line number where the cursor is
         const cursorPosition = selection.active;
         const line = document.lineAt(cursorPosition.line);
 
-        // Find the comment line starting with //
         let commentLine = '';
         for (let i = cursorPosition.line; i >= 0; i--) {
             const currentLine = document.lineAt(i);
@@ -34,7 +29,6 @@ function activate(context) {
             }
         }
 
-        // Build the prompt combining comment line and selected text
         const prompt = `${commentLine}\n${selectedText}`;
 
         try {
@@ -50,81 +44,68 @@ function activate(context) {
         }
     });
 
-    // Register the command for selecting .xosc files
     let selectXOSCFile = vscode.commands.registerCommand('extension.selectXOSCFile', async () => {
         const fileUri = await vscode.window.showOpenDialog({
             canSelectMany: false,
             openLabel: 'Select .xosc File',
-            filters: {
-                'OpenScenario Files': ['xosc']
-            }
+            filters: { 'OpenScenario Files': ['xosc'] }
         });
 
         if (fileUri && fileUri[0]) {
             vscode.window.showInformationMessage('Selected XOSC File: ' + fileUri[0].fsPath);
-            // Here you can add code to process the selected .xosc file
+            console.log('Selected XOSC File: ' + fileUri[0].fsPath);
         }
     });
 
-    // Register the command for selecting .xodr files
-    let selectXODRFile = vscode.commands.registerCommand('extension.selectXODRFile', async () => {
-        const fileUri = await vscode.window.showOpenDialog({
+    // Command to run esmini with the selected file
+    let runEsmini = vscode.commands.registerCommand('extension.runEsmini', async () => {
+        const xoscFileUri = await vscode.window.showOpenDialog({
             canSelectMany: false,
-            openLabel: 'Select .xodr File',
-            filters: {
-                'OpenDRIVE Files': ['xodr']
-            }
+            openLabel: 'Select .xosc File',
+            filters: { 'OpenScenario Files': ['xosc'] }
         });
 
-        if (fileUri && fileUri[0]) {
-            vscode.window.showInformationMessage('Selected XODR File: ' + fileUri[0].fsPath);
-            // Here you can add code to process the selected .xodr file
+        if (xoscFileUri && xoscFileUri[0]) {
+            const esminiPath = 'D:\\Project\\llm-ai-copilot\\extension\\esmini\\bin\\esmini.exe'; // Path to embedded Esmini executable
+
+            if (!fs.existsSync(esminiPath)) {
+                vscode.window.showErrorMessage(`esmini not found at ${esminiPath}. Please check the extension installation.`);
+                return;
+            }
+
+            const xoscFilePath = xoscFileUri[0].fsPath;
+
+            const esminiArgs = [
+                '--window', '60', '60', '1024', '576',
+                '--osc', xoscFilePath,
+                '--osi_file', 'on'
+            ];
+
+            execFile(esminiPath, esminiArgs, (error, stdout, stderr) => {
+                if (error) {
+                    vscode.window.showErrorMessage(`Error running esmini: ${error.message}`);
+                    console.error(`Error running esmini: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    vscode.window.showErrorMessage(`esmini stderr: ${stderr}`);
+                    console.error(`esmini stderr: ${stderr}`);
+                    return;
+                }
+                vscode.window.showInformationMessage('esmini ran successfully');
+                console.log(stdout);
+            });
+        } else {
+            vscode.window.showInformationMessage('Please select a .xosc file.');
         }
     });
 
     context.subscriptions.push(disposable);
     context.subscriptions.push(selectXOSCFile);
-    context.subscriptions.push(selectXODRFile);
-
-    // Language Server setup
-    let serverModule = context.asAbsolutePath(path.join('server', 'src', 'server.js'));
-    console.log('Server module path:', serverModule)
-    let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
-
-    let serverOptions = {
-        run: { module: serverModule, transport: TransportKind.ipc },
-        debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
-    };
-
-    let clientOptions = {
-        documentSelector: [
-            { scheme: 'file', language: 'openscenario' },
-            { scheme: 'file', language: 'opendrive' }
-        ],
-        synchronize: {
-            configurationSection: 'openscenarioLanguageServer',
-        }
-    };
-
-    client = new LanguageClient(
-        'openscenarioLanguageServer',
-        'OpenSCENARIO Language Server',
-        serverOptions,
-        clientOptions
-    );
-
-    client.start();
-
-
-    
+    context.subscriptions.push(runEsmini);
 }
 
-function deactivate() {
-    if (!client) {
-        return undefined;
-    }
-    return client.stop();
-}
+function deactivate() {}
 
 module.exports = {
     activate,

@@ -1,8 +1,9 @@
 {
   "name": "llm-ai-copilot",
   "displayName": "LLM AI Copilot",
-  "description": "An AI copilot for providing local coding suggestions",
+  "description": "A VS Code extension for AI-powered coding suggestions and esmini integration.",
   "version": "0.0.1",
+  "publisher": "Rishav Kumar Paramhans",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -13,6 +14,7 @@
     "onCommand:extension.getLocalCopilotSuggestions",
     "onCommand:extension.selectXOSCFile",
     "onCommand:extension.selectXODRFile",
+    "onCommand:extension.runEsmini",
     "onLanguage:openscenario",
     "onLanguage:opendrive"
   ],
@@ -30,6 +32,10 @@
       {
         "command": "extension.selectXODRFile",
         "title": "Select XODR File"
+      }, 
+      {
+        "command": "extension.runEsmini",
+        "title": "Run esmini"
       }
     ],
     "keybindings": [
