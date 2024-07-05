@@ -5,7 +5,6 @@
     <ParameterDeclaration name="leadingSpeed" parameterType="double" value="2.0"/>
   </ParameterDeclarations>
   <CatalogLocations/>
-  ParameterDeclarations>
     <ParameterDeclaration name="leadingSpeed" parameterType="double" value="2.0"/>
   </ParameterDeclarations>
   <Entities>

@@ -6,7 +6,7 @@ const {
     TextDocumentSyncKind, 
     InsertTextFormat
 } = require('vscode-languageserver');
-
+const xml2js = require('xml2js'); // Import XML parsing library
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments();
 
@@ -205,17 +205,6 @@ connection.onCompletion((textDocumentPosition) => {
         return [];
     }
 });
-connection.onDidOpenTextDocument((params) => {
-    const document = documents.get(params.textDocument.uri);
-    if (document) {
-        // Document exists, perform operations
-        // Example: Assuming 'create' is a method on 'document'
-        document.create();  // Replace with actual method invocation
-    } else {
-        console.error(`Document not found for URI: ${params.textDocument.uri}`);
-    }
-});
-
 documents.listen(connection);
 connection.listen();
 
@@ -234,4 +223,37 @@ process.on('uncaughtException', (err) => {
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection:', reason);
+});
+
+
+// Example handler for 'textDocument/didOpen'
+connection.onDidOpenTextDocument(async (params) => {
+    let document = params.textDocument;
+
+    // Parse XML content using xml2js (or any other XML parsing library)
+    try {
+        const parser = new xml2js.Parser({ explicitArray: false });
+        const parsedData = await parser.parseStringPromise(document.text);
+
+        // Extract specific blocks from parsed data
+        const openScenario = parsedData.OpenSCENARIO;
+        if (openScenario) {
+            const fileHeader = openScenario.FileHeader;
+            const parameterDeclarations = openScenario.ParameterDeclarations;
+            const entities = openScenario.Entities;
+            const storyboard = openScenario.Storyboard;
+
+            // Example log outputs or further processing
+            console.log('FileHeader:', fileHeader);
+            console.log('ParameterDeclarations:', parameterDeclarations);
+            console.log('Entities:', entities);
+            console.log('Storyboard:', storyboard);
+
+            // You can perform further processing or analysis based on extracted data
+        } else {
+            console.error('Invalid OpenSCENARIO structure');
+        }
+    } catch (error) {
+        console.error('Error parsing XML:', error);
+    }
 });
