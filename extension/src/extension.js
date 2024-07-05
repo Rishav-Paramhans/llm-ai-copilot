@@ -1,10 +1,57 @@
 const vscode = require('vscode');
+const path = require('path');
 const { execFile } = require('child_process');
 const fs = require('fs');
+const axios = require('axios');
+const { LanguageClient, TransportKind } = require('vscode-languageclient/node');
+
+let client;
 
 function activate(context) {
     console.log('Congratulations, your extension "llm-ai-copilot" is now active!');
 
+    // The server is implemented in Node.js
+    const serverModule = context.asAbsolutePath(
+        path.join('extension', 'src', 'server', 'lsp_server','src','server.js') // Adjust this path as per your server implementation
+    );
+
+    // Options to control the language client
+    const clientOptions = {
+        documentSelector: [{ scheme: 'file', language: 'openscenario' }],
+        synchronize: {
+            fileEvents: vscode.workspace.createFileSystemWatcher('**/*.xosc')
+        },
+        initializationOptions: {},
+        middleware: {},
+        errorHandler: {
+            error: (error, message, count) => {
+                console.error('Client error:', error, message, count);
+                return { action: vscode_languageclient_1.ErrorAction.Continue };
+            },
+            closed: () => {
+                console.error('Client closed');
+                return { action: vscode_languageclient_1.CloseAction.Restart };
+            }
+        }
+    };
+
+    // Create the language client and start the client.
+    client = new LanguageClient(
+        'llm-ai-copilot', // Replace with your language server ID
+        'LLM AI Copilot', // Replace with your language server name
+        {
+            run: { module: serverModule, transport: TransportKind.stdio },
+            debug: { module: serverModule, transport: TransportKind.stdio }
+        },
+        clientOptions
+    );
+
+    // Start the client. This will also launch the server
+    client.start();
+
+    context.subscriptions.push(client);
+
+    // Register your existing commands
     let disposable = vscode.commands.registerCommand('extension.getLocalCopilotSuggestions', async function () {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
@@ -56,14 +103,6 @@ function activate(context) {
         }
     });
 
-    // Default flags
-    const defaultFlags = {
-        '--aa_mode': '4',
-        '--camera_mode': 'orbit',
-        '--osi_file': 'on',
-        '--window': '60 60 1024 576'
-    };
-
     // Command to run esmini with the selected file
     let runEsmini = vscode.commands.registerCommand('extension.runEsmini', async () => {
         const xoscFileUri = await vscode.window.showOpenDialog({
@@ -82,15 +121,11 @@ function activate(context) {
 
             const xoscFilePath = xoscFileUri[0].fsPath;
 
-            // Collect all flags and arguments
-            let esminiArgs = [
-                '--osc', xoscFilePath
+            const esminiArgs = [
+                '--window', '60', '60', '1024', '576',
+                '--osc', xoscFilePath,
+                '--osi_file', 'on'
             ];
-
-            // Add default flags
-            for (const flag in defaultFlags) {
-                esminiArgs.push(flag, defaultFlags[flag]);
-            }
 
             execFile(esminiPath, esminiArgs, (error, stdout, stderr) => {
                 if (error) {
@@ -116,7 +151,14 @@ function activate(context) {
     context.subscriptions.push(runEsmini);
 }
 
-function deactivate() {}
+function deactivate() {
+    if (client) {
+        client.stop();
+    }
+
+    // Dispose of all subscriptions
+    context.subscriptions.forEach((item) => item.dispose());
+}
 
 module.exports = {
     activate,

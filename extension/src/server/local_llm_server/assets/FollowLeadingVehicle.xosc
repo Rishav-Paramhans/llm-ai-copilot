@@ -5,10 +5,9 @@
     <ParameterDeclaration name="leadingSpeed" parameterType="double" value="2.0"/>
   </ParameterDeclarations>
   <CatalogLocations/>
-  <RoadNetwork>
-    <LogicFile filepath="Town01"/>
-    <SceneGraphFile filepath=""/>
-  </RoadNetwork>
+  ParameterDeclarations>
+    <ParameterDeclaration name="leadingSpeed" parameterType="double" value="2.0"/>
+  </ParameterDeclarations>
   <Entities>
     <ScenarioObject name="hero">
       <Vehicle name="vehicle.lincoln.mkz_2017" vehicleCategory="car">
