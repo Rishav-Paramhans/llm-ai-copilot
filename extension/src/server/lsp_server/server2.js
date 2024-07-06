@@ -22,7 +22,9 @@ const xml2js = require('xml2js'); // Import XML parsing library
 
 console.log('Language server is starting...');
 
-const openScenarioCompletionItems = [
+
+// Example completion items
+const staticCompletionItems = [
     { label: 'OpenSCENARIO', kind: CompletionItemKind.Module },
     { label: 'Storyboard', kind: CompletionItemKind.Class },
     { label: 'Init', kind: CompletionItemKind.Method },
@@ -110,10 +112,7 @@ const openScenarioCompletionItems = [
         insertText: '<Act name="">\n\t<ManeuverGroup maximumExecutionCount="" name="">\n\t\t<Actors selectTriggeringEntities="">\n\t\t\t<EntityRef entityRef=""/>\n\t\t</Actors>\n\t\t<Maneuver name="">\n\t\t\t<Event name="" priority="" maximumExecutionCount="">\n\t\t\t\t<Action name="">\n\t\t\t\t\t<PrivateAction>\n\t\t\t\t\t\t<LateralAction>\n\t\t\t\t\t\t\t<LaneChangeAction dynamicsShape="" value="" dynamicsDimension=""/>\n\t\t\t\t\t\t\t<LaneChangeTarget>\n\t\t\t\t\t\t\t\t<RelativeTargetLane entityRef="" value=""/>\n\t\t\t\t\t\t\t</LaneChangeTarget>\n\t\t\t\t\t\t</LaneChangeAction>\n\t\t\t\t\t</LateralAction>\n\t\t\t\t</PrivateAction>\n\t\t\t</Action>\n\t\t\t<StartTrigger>',
         insertTextFormat: InsertTextFormat.Snippet,
         detail: 'Insert Act block'
-    }
-];
-
-const openDriveCompletionItems = [
+    },
     { label: 'OpenDRIVE', kind: CompletionItemKind.Module },
     { label: 'road', kind: CompletionItemKind.Class },
     { label: 'link', kind: CompletionItemKind.Method },
@@ -154,77 +153,58 @@ const openDriveCompletionItems = [
     }
 ];
 
+connection.onInitialized(() => {
+    console.log('Language server fully initialized');
+});
 
+// Handle document lifecycle events
+documents.onDidOpen((event) => {
+    const document = event.document;
+    console.log(`Document opened: ${document.uri}`);
+});
 
-// Connection initialization
+documents.onDidChangeContent((change) => {
+    const document = change.document;
+    console.log(`Document changed: ${document.uri}`);
+});
+
+documents.onDidClose((event) => {
+    const document = event.document;
+    console.log(`Document closed: ${document.uri}`);
+});
+
+documents.listen(connection);
+
+// Completion handler
+connection.onCompletion((textDocumentPosition) => {
+    console.log('Completion request received for:', textDocumentPosition.textDocument.uri);
+
+    // Provide static completion items
+    return staticCompletionItems.map(item => ({
+        ...item,
+        data: { uri: textDocumentPosition.textDocument.uri }
+    }));
+});
+
+// Initialize handler
 connection.onInitialize((params) => {
     console.log('Server initialized');
-
     const result = {
         capabilities: {
             textDocumentSync: TextDocumentSyncKind.Incremental,
             completionProvider: {
-                resolveProvider: true,
-                triggerCharacters: ['<', ' ']
+                resolveProvider: true
             }
         }
     };
     return result;
 });
-connection.onInitialized(() => {
-    console.log('Language server fully initialized');
-});
-documents.onDidChangeContent(change => {
-    console.log(`Document changed: ${change.document.uri}`);
-    console.log(`New content: ${change.document.getText()}`);
-    const textDocument = change.document;
-    const content = textDocument.getText();
 
-    xml2js.parseString(content, (err, result) => {
-        if (err) {
-            console.error('XML parsing error:', err);
-            return;
-        }
-        console.log('Parsed XML:', result);
-    });
-});
-async function validateTextDocument(textDocument) {
-    const text = textDocument.getText();
-    const diagnostics = [];
-
-    const requiredTags = ['<OpenSCENARIO>'];
-    requiredTags.forEach(tag => {
-        if (!text.includes(tag)) {
-            diagnostics.push({
-                severity: 1,
-                range: {
-                    start: textDocument.positionAt(0),
-                    end: textDocument.positionAt(tag.length)
-                },
-                message: `Missing required tag: ${tag}`,
-                source: 'ex'
-            });
-        }
-    });
-
-    connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
-}
-
-documents.onDidClose((event) => {
-    console.log('Document closed:', event.document.uri);
-    connection.sendDiagnostics({ uri: event.document.uri, diagnostics: [] });
+// Resolve completion item handler
+connection.onCompletionResolve((item) => {
+    return item;
 });
 
-// Example handler for 'textDocument/completion'
-connection.onCompletion((textDocumentPosition) => {
-    console.log('Completion request received for:', textDocumentPosition.textDocument.uri);
-
-    // Provide static completion items
-    return openScenarioCompletionItems.map(item => ({
-        ...item,
-        data: { uri: textDocumentPosition.textDocument.uri }
-    }));
-});
 documents.listen(connection);
 connection.listen();
 
@@ -243,61 +223,4 @@ process.on('uncaughtException', (err) => {
 
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection:', reason);
-});
-
-
-// Example handler for 'textDocument/didOpen'
-connection.onDidOpenTextDocument(async (params) => {
-    let document = params.textDocument;
-
-     // Check if document is empty
-     if (!document.text || document.text.trim() === '') {
-        console.log('Document is empty.');
-        return;
-    }
-    // Parse XML content using xml2js (or any other XML parsing library)
-    try {
-        const parser = new xml2js.Parser({ explicitArray: false });
-        const parsedData = await parser.parseStringPromise(document.text);
-
-        // Extract specific blocks from parsed data
-        const openScenario = parsedData.OpenSCENARIO;
-        if (openScenario) {
-            const fileHeader = openScenario.FileHeader;
-            const parameterDeclarations = openScenario.ParameterDeclarations;
-            const entities = openScenario.Entities;
-            const storyboard = openScenario.Storyboard;
-
-            // Example log outputs or further processing
-            if (fileHeader) {
-                console.log('FileHeader:', fileHeader);
-            } else {
-                console.log('FileHeader not found');
-            }
-
-            if (parameterDeclarations) {
-                console.log('ParameterDeclarations:', parameterDeclarations);
-            } else {
-                console.log('ParameterDeclarations not found');
-            }
-
-            if (entities) {
-                console.log('Entities:', entities);
-            } else {
-                console.log('Entities not found');
-            }
-
-            if (storyboard) {
-                console.log('Storyboard:', storyboard);
-            } else {
-                console.log('Storyboard not found');
-            }
-
-            // You can perform further processing or analysis based on extracted data
-        } else {
-            console.error('Invalid OpenSCENARIO structure');
-        }
-    } catch (error) {
-        console.error('Error parsing XML:', error);
-    }
 });
