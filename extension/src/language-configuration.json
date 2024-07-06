@@ -24,7 +24,34 @@
       { "open": "[", "close": "]" },
       { "open": "(", "close": ")" },
       { "open": "'", "close": "'" }
-    ]
-  
+    ],
+    "snippets": {
+        "xmlSnippet": {
+            "prefix": "xml",
+            "body": [
+                "<${1:tag}>",
+                "\t$0",
+                "</${1:tag}>"
+            ],
+            "description": "XML Tag Snippet"
+        },
+        "htmlSnippet": {
+            "prefix": "html",
+            "body": [
+                "<!DOCTYPE html>",
+                "<html>",
+                "\t<head>",
+                "\t\t<title>${1:Document}</title>",
+                "\t</head>",
+                "\t<body>",
+                "\t\t$0",
+                "\t</body>",
+                "</html>"
+            ],
+            "description": "HTML Skeleton Snippet"
+        }
+        // Add more snippets as needed
+    }
 }
+  
   

@@ -3,7 +3,8 @@ const path = require('path');
 const { execFile } = require('child_process');
 const fs = require('fs');
 const axios = require('axios');
-const { LanguageClient, TransportKind } = require('vscode-languageclient/node');
+const { LanguageClient,LanguageClientOptions,
+    ServerOptions, TransportKind } = require('vscode-languageclient/node');
 
 let client;
 
@@ -15,14 +16,35 @@ function activate(context) {
         path.join('extension', 'src', 'server', 'lsp_server','src','server.js') // Adjust this path as per your server implementation
     );
 
+    const serverOptions = {
+        run: { module: serverModule, transport: TransportKind.stdio },
+        debug: {
+            module: serverModule,
+            transport: TransportKind.stdio,
+            options: { execArgv: ['--nolazy', '--inspect=6009'] }
+        }
+    };
     // Options to control the language client
     const clientOptions = {
-        documentSelector: [{ scheme: 'file', language: 'openscenario' }],
+        documentSelector: [{ scheme: 'file', language: 'openscenario' },
+            { scheme: 'file', language: 'opendrive' },
+            { scheme: 'file', pattern: '**/*.{xosc,xodr}' }
+        ],
         synchronize: {
-            fileEvents: vscode.workspace.createFileSystemWatcher('**/*.xosc')
+            fileEvents: vscode.workspace.createFileSystemWatcher('**/*.xosc'),
+            fileEvents: vscode.workspace.createFileSystemWatcher('**/*.xodr')
         },
         initializationOptions: {},
         middleware: {},
+        capabilities: {
+            textDocument: {
+                completion: {
+                    completionItem: {
+                        snippetSupport: true // Enable snippet support
+                    }
+                }
+            }
+        },
         errorHandler: {
             error: (error, message, count) => {
                 console.error('Client error:', error, message, count);
@@ -34,6 +56,7 @@ function activate(context) {
             }
         }
     };
+    
 
     // Create the language client and start the client.
     client = new LanguageClient(
@@ -43,7 +66,8 @@ function activate(context) {
             run: { module: serverModule, transport: TransportKind.stdio },
             debug: { module: serverModule, transport: TransportKind.stdio }
         },
-        clientOptions
+        clientOptions,
+        serverOptions
     );
 
     // Start the client. This will also launch the server
@@ -98,6 +122,7 @@ function activate(context) {
         });
 
         if (fileUri && fileUri[0]) {
+           
             vscode.window.showInformationMessage('Selected XOSC File: ' + fileUri[0].fsPath);
             console.log('Selected XOSC File: ' + fileUri[0].fsPath);
         }

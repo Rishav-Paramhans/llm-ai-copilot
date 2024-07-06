@@ -1,14 +1,24 @@
 const {
     createConnection,
     TextDocuments,
+    Diagnostic,
+    DiagnosticSeverity,
     ProposedFeatures,
+    InitializeParams,
+    DidChangeConfigurationNotification,
+    CompletionItem,
     CompletionItemKind,
+    TextDocumentPositionParams,
     TextDocumentSyncKind, 
-    InsertTextFormat
+    InsertTextFormat,
+    InitializeResult
 } = require('vscode-languageserver');
-const xml2js = require('xml2js'); // Import XML parsing library
+
+
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments();
+const { exit } = require('./methods/exit.js')
+const xml2js = require('xml2js'); // Import XML parsing library
 
 console.log('Language server is starting...');
 
@@ -169,7 +179,7 @@ async function validateTextDocument(textDocument) {
     const text = textDocument.getText();
     const diagnostics = [];
 
-    const requiredTags = ['<OpenSCENARIO>', '<FileHeader', '<Storyboard>', '<Entities>', '<RoadNetwork>'];
+    const requiredTags = ['<OpenSCENARIO>'];
     requiredTags.forEach(tag => {
         if (!text.includes(tag)) {
             diagnostics.push({
@@ -192,18 +202,45 @@ documents.onDidClose((event) => {
     connection.sendDiagnostics({ uri: event.document.uri, diagnostics: [] });
 });
 
+// Example handler for 'textDocument/completion'
 connection.onCompletion((textDocumentPosition) => {
     console.log('Completion request received for:', textDocumentPosition.textDocument.uri);
     const document = documents.get(textDocumentPosition.textDocument.uri);
-    const text = document.getText();
-    if (text.includes('<OpenSCENARIO')) {
-        return openScenarioCompletionItems;
-    } else if (text.includes('<OpenDRIVE')) {
-        return openDriveCompletionItems;
-    } else {
-        console.error("Document not found:", params.textDocument.uri);
+    if (!document) {
+        console.error("Document not found:", textDocumentPosition.textDocument.uri);
         return [];
     }
+
+    const text = textDocumentPosition.textDocument.getText();
+
+    // Check if the document contains OpenSCENARIO or OpenDRIVE tags
+    if (text.includes('<OpenSCENARIO>')) {
+        const openScenario = document.OpenSCENARIO;
+        if (openScenario) {
+            // Extract completion items based on parsed data
+            const fileHeader = openScenario.FileHeader;
+            const parameterDeclarations = openScenario.ParameterDeclarations;
+            const entities = openScenario.Entities;
+            const storyboard = openScenario.Storyboard;
+
+            // Example completion items based on extracted data
+            if (fileHeader) {
+                return fileHeaderCompletionItems;
+            } else if (parameterDeclarations) {
+                return parameterDeclarationsCompletionItems;
+            } else if (entities) {
+                return entitiesCompletionItems;
+            } else if (storyboard) {
+                return storyboardCompletionItems;
+            }
+        }
+        
+    } else if (text.includes('<OpenDRIVE>')) {
+        // Handle OpenDRIVE completion items similarly if needed
+        return openDriveCompletionItems;
+    }
+
+    return [];
 });
 documents.listen(connection);
 connection.listen();
@@ -229,7 +266,11 @@ process.on('unhandledRejection', (reason, promise) => {
 // Example handler for 'textDocument/didOpen'
 connection.onDidOpenTextDocument(async (params) => {
     let document = params.textDocument;
-
+     // Check if document is empty
+     if (!document.text || document.text.trim() === '') {
+        console.log('Document is empty.');
+        return;
+    }
     // Parse XML content using xml2js (or any other XML parsing library)
     try {
         const parser = new xml2js.Parser({ explicitArray: false });
@@ -244,10 +285,29 @@ connection.onDidOpenTextDocument(async (params) => {
             const storyboard = openScenario.Storyboard;
 
             // Example log outputs or further processing
-            console.log('FileHeader:', fileHeader);
-            console.log('ParameterDeclarations:', parameterDeclarations);
-            console.log('Entities:', entities);
-            console.log('Storyboard:', storyboard);
+            if (fileHeader) {
+                console.log('FileHeader:', fileHeader);
+            } else {
+                console.log('FileHeader not found');
+            }
+
+            if (parameterDeclarations) {
+                console.log('ParameterDeclarations:', parameterDeclarations);
+            } else {
+                console.log('ParameterDeclarations not found');
+            }
+
+            if (entities) {
+                console.log('Entities:', entities);
+            } else {
+                console.log('Entities not found');
+            }
+
+            if (storyboard) {
+                console.log('Storyboard:', storyboard);
+            } else {
+                console.log('Storyboard not found');
+            }
 
             // You can perform further processing or analysis based on extracted data
         } else {
