@@ -48,10 +48,13 @@ const openScenarioCompletionItems = [
     { label: 'CatalogReference', kind: CompletionItemKind.Field },
     { label: 'CatalogName', kind: CompletionItemKind.Field },
     { label: 'Entry', kind: CompletionItemKind.Field },
+    { label: 'greaterThan', kind: CompletionItemKind.Field },
+    { label: 'equalTo', kind: CompletionItemKind.Field },
+    { label: 'lessOrEqual', kind: CompletionItemKind.Field },
     {
         label: 'ParameterDeclarations',
         kind: CompletionItemKind.Snippet,
-        insertText: '<ParameterDeclarations>\n\t<ParameterDeclaration name="" parameterType="" value=""/>\n</ParameterDeclarations>',
+        insertText: '<ParameterDeclarations>\n\t<ParameterDeclaration name="" parameterType="" value=""/></ParameterDeclaration>\n</ParameterDeclarations>',
         insertTextFormat: InsertTextFormat.Snippet,
         detail: 'Insert ParameterDeclarations block'
     },
@@ -65,14 +68,14 @@ const openScenarioCompletionItems = [
     {
         label: 'FileHeader',
         kind: CompletionItemKind.Snippet,
-        insertText: '<FileHeader revMajor="" revMinor="" date="" description="" author=""/>',
+        insertText: '<FileHeader revMajor="" revMinor="" date="" description="" author=""/>\n\t<License name="" resource="" spdxId="" />\n</FileHeader>',
         insertTextFormat: InsertTextFormat.Snippet,
         detail: 'Insert FileHeader block'
     },
     {
         label: 'CatalogLocations',
         kind: CompletionItemKind.Snippet,
-        insertText: '<CatalogLocations>\n\t<VehicleCatalog>\n\t\t<Directory path=""/>\n\t</VehicleCatalog>\n</CatalogLocations>',
+        insertText: '<CatalogLocations>\n\t<VehicleCatalog>\n\t\t<Directory path=""/>\n\t</VehicleCatalog>\n\t<PedestrianCatalog>\n\t\t<Directory path="" />\n\t</PedestrianCatalog>\n\t<MiscObjectCatalog>\n\t\t<Directory path="" />\n\t</MiscObjectCatalog>\n\t<ControllerCatalog>\n\t\t<Directory path="" />\n\t</ControllerCatalog>\n</CatalogLocations>',
         insertTextFormat: InsertTextFormat.Snippet,
         detail: 'Insert CatalogLocations block'
     },
@@ -110,7 +113,50 @@ const openScenarioCompletionItems = [
         insertText: '<Act name="">\n\t<ManeuverGroup maximumExecutionCount="" name="">\n\t\t<Actors selectTriggeringEntities="">\n\t\t\t<EntityRef entityRef=""/>\n\t\t</Actors>\n\t\t<Maneuver name="">\n\t\t\t<Event name="" priority="" maximumExecutionCount="">\n\t\t\t\t<Action name="">\n\t\t\t\t\t<PrivateAction>\n\t\t\t\t\t\t<LateralAction>\n\t\t\t\t\t\t\t<LaneChangeAction dynamicsShape="" value="" dynamicsDimension=""/>\n\t\t\t\t\t\t\t<LaneChangeTarget>\n\t\t\t\t\t\t\t\t<RelativeTargetLane entityRef="" value=""/>\n\t\t\t\t\t\t\t</LaneChangeTarget>\n\t\t\t\t\t\t</LaneChangeAction>\n\t\t\t\t\t</LateralAction>\n\t\t\t\t</PrivateAction>\n\t\t\t</Action>\n\t\t\t<StartTrigger>',
         insertTextFormat: InsertTextFormat.Snippet,
         detail: 'Insert Act block'
-    }
+    },
+    {
+        label:'?xml',
+        kind: CompletionItemKind.Snippet,
+        insertText: '?xml version="" encoding=""?',
+        insertTextFormat: InsertTextFormat.Snippet,
+        detail: 'Insert xml version'
+    },
+    {
+        label:'OpenSCENARIO',
+        kind: CompletionItemKind.Snippet,
+        insertText: '<OpenSCENARIO>\n</OpenSCENARIO>',
+        insertTextFormat: InsertTextFormat.Snippet,
+        detail: 'Insert OpenSCENARIO block'
+    },
+    {
+        label:'ParameterDeclaration',
+        kind: CompletionItemKind.Snippet,
+        insertText: '<ParameterDeclaration name="" parameterType="" value=""></ParameterDeclaration>',
+        insertTextFormat: InsertTextFormat.Snippet,
+        detail: 'Insert Parameterdeclaration block'
+    },
+    {
+        label:'ConstraintGroup',
+        kind: CompletionItemKind.Snippet,
+        insertText: '<ConstraintGroup>\n\t<ValueConstraint rule="" value="" />\n</ConstraintGroup>',
+        insertTextFormat: InsertTextFormat.Snippet,
+        detail: 'Insert ConstraintGroup block'
+    },
+    {
+        label:'ValueConstraint',
+        kind: CompletionItemKind.Snippet,
+        insertText: '<ValueConstraint rule="" value="" />',
+        insertTextFormat: InsertTextFormat.Snippet,
+        detail: 'Insert ValueConstraint line'
+    },
+    {
+        label:'ObjectController',
+        kind: CompletionItemKind.Snippet,
+        insertText: '<ObjectController>\n\t<CatalogReference catalogName="" entryName=""></CatalogReference>\n</ObjectController>',
+        insertTextFormat: InsertTextFormat.Snippet,
+        detail: 'Insert ObjectController block'
+    },
+
 ];
 
 const openDriveCompletionItems = [
@@ -225,6 +271,15 @@ connection.onCompletion((textDocumentPosition) => {
         data: { uri: textDocumentPosition.textDocument.uri }
     }));
 });
+// Resolve completion item handler
+connection.onCompletionResolve((item) => {
+    console.log('Completion item resolve request received for:', item.label);
+
+    // You can add additional information to the item here if needed
+    // For this example, we simply return the item as is
+    return item;
+});
+
 documents.listen(connection);
 connection.listen();
 
