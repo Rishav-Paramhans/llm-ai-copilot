@@ -9,7 +9,8 @@ app = FastAPI()
 model_name = "distilbert-base-uncased"  # Replace this with your LLaMA-2 model path or identifier
 tokenizer = DistilBertTokenizer.from_pretrained(model_name, trust_remote_code=True)
 model = DistilBertForSequenceClassification.from_pretrained(model_name, trust_remote_code=True)
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = "cpu"
 model.to(device)
 
 # Set the pad_token to eos_token
