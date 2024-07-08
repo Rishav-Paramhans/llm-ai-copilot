@@ -20,3 +20,7 @@ venv/
 # Dependency directories
 extension/node_modules/
 server/node_modules/
+
+# Custom directories (relative paths)
+src/server/local_llm_server/train/results/
+src/server/local_llm_server/dataset/
