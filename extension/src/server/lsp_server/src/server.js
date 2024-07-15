@@ -220,17 +220,31 @@ connection.onInitialize((params) => {
 connection.onInitialized(() => {
     console.log('Language server fully initialized');
 });
+// Document content change handler
 documents.onDidChangeContent(change => {
     console.log(`Document changed: ${change.document.uri}`);
-    console.log(`New content: ${change.document.getText()}`);
     const textDocument = change.document;
     const content = textDocument.getText();
-
+    // Validate the document whenever content changes
+    validateTextDocument(textDocument);
     xml2js.parseString(content, (err, result) => {
         if (err) {
             console.error('XML parsing error:', err);
+            // Report error diagnostics
+            const diagnostics = [{
+                severity: 1, // 1: Error, 2: Warning, 3: Information, 4: Hint
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: 0, character: 1 }
+                },
+                message: `XML parsing error: ${err.message}`
+            }];
+            connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
             return;
         }
+        
+        // Clear existing diagnostics (if any) when no errors
+        connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: [] });
         console.log('Parsed XML:', result);
     });
 });
@@ -253,23 +267,40 @@ async function validateTextDocument(textDocument) {
         }
     });
 
+    // Asynchronous delay to simulate asynchronous operations
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
+
 
 documents.onDidClose((event) => {
     console.log('Document closed:', event.document.uri);
     connection.sendDiagnostics({ uri: event.document.uri, diagnostics: [] });
 });
 
-// Example handler for 'textDocument/completion'
+// Handler for 'textDocument/completion'
 connection.onCompletion((textDocumentPosition) => {
-    console.log('Completion request received for:', textDocumentPosition.textDocument.uri);
+    const uri = textDocumentPosition.textDocument.uri;
+    console.log('Completion request received for:', uri);
 
-    // Provide static completion items
-    return openScenarioCompletionItems.map(item => ({
-        ...item,
-        data: { uri: textDocumentPosition.textDocument.uri }
-    }));
+    // Determine the file type based on the URI
+    if (uri.endsWith('.xosc')) {
+        // Provide OpenScenario completion items for .xosc files
+        return openScenarioCompletionItems.map(item => ({
+            ...item,
+            data: { uri: textDocumentPosition.textDocument.uri }
+        }));
+    } else if (uri.endsWith('.xodr')) {
+        // Provide OpenDrive completion items for .xodr files
+        return openDriveCompletionItems.map(item => ({
+            ...item,
+            data: { uri: textDocumentPosition.textDocument.uri }
+        }));
+    } else {
+        // Return an empty list or a default set of completion items for other file types
+        return [];
+    }
 });
 // Resolve completion item handler
 connection.onCompletionResolve((item) => {
