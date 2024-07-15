@@ -51,6 +51,10 @@
             "description": "HTML Skeleton Snippet"
         }
         // Add more snippets as needed
+    }, 
+    "indentationRules": {
+        "increaseIndentPattern": "</?(?!\\?|(?:area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)\\b[^>]*>)\\s*[^>]*$",
+        "decreaseIndentPattern": "^\\s*(</([_\\w\\.:-]+)[^>]*>|\\s*<!--(?!.*-->).*$)"
     }
 }
   

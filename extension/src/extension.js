@@ -24,20 +24,28 @@ function activate(context) {
             options: { execArgv: ['--nolazy', '--inspect=6009'] }
         }
     };
-    // Options to control the language client
+    // Define client options
     const clientOptions = {
-        documentSelector: [{ scheme: 'file', language: 'openscenario' },
-            { scheme: 'file', language: 'opendrive' },
-            { scheme: 'file', pattern: '**/*.{xosc,xodr}' }
+        documentSelector: [
+            { scheme: 'file', language: 'openscenario' },
+            { scheme: 'file', language: 'opendrive' }
         ],
         synchronize: {
-            fileEvents: vscode.workspace.createFileSystemWatcher('**/*.xosc'),
-            fileEvents: vscode.workspace.createFileSystemWatcher('**/*.xodr')
+            fileEvents: [
+                vscode.workspace.createFileSystemWatcher('**/*.xosc'),
+                vscode.workspace.createFileSystemWatcher('**/*.xodr')
+            ]
         },
         initializationOptions: {},
         middleware: {},
         capabilities: {
             textDocument: {
+                synchronization: {
+                    didSave: true,
+                    didClose: true,
+                    didOpen: true,
+                    didChange: true
+                },
                 completion: {
                     completionItem: {
                         snippetSupport: true // Enable snippet support
@@ -48,15 +56,14 @@ function activate(context) {
         errorHandler: {
             error: (error, message, count) => {
                 console.error('Client error:', error, message, count);
-                return { action: vscode_languageclient_1.ErrorAction.Continue };
+                return { action: ErrorAction.Continue };
             },
             closed: () => {
                 console.error('Client closed');
-                return { action: vscode_languageclient_1.CloseAction.Restart };
+                return { action: CloseAction.Restart };
             }
         }
-    };
-    
+    };    
 
     // Create the language client and start the client.
     client = new LanguageClient(
@@ -113,6 +120,24 @@ function activate(context) {
             console.error(error);
         }
     });
+    // Register a command in your extension
+    let triggerSyntaxCheckCommand = vscode.commands.registerCommand('extension.triggerSyntaxCheckCommand', () => {
+        // Retrieve the active text editor
+        let editor = vscode.window.activeTextEditor;
+        if (editor) {
+            // Assuming the URI of the active document
+            let uri = editor.document.uri.toString();
+        
+            // Send a message to the server to trigger documents.onDidChangeContent
+            client.sendNotification('onDidChangeContentTriggered', { uri });
+            console.log('Sent onDidChangeContentTriggered notification for URI:', uri);
+        } else {
+            vscode.window.showInformationMessage('No active editor found.');
+        }
+    });
+
+    context.subscriptions.push(triggerSyntaxCheckCommand);
+
 
     let selectXOSCFile = vscode.commands.registerCommand('extension.selectXOSCFile', async () => {
         const fileUri = await vscode.window.showOpenDialog({

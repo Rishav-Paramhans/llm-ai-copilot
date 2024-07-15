@@ -16,7 +16,8 @@
     "onCommand:extension.selectXODRFile",
     "onCommand:extension.runEsmini",
     "onLanguage:openscenario",
-    "onLanguage:opendrive"
+    "onLanguage:opendrive",
+    "onCommand:extension.triggerSyntaxCheckCommand"
   ],
   "main": "./extension/src/extension.js",
   "contributes": {
@@ -36,6 +37,10 @@
       {
         "command": "extension.runEsmini",
         "title": "Run esmini"
+      },
+      {
+        "command": "extension.triggerSyntaxCheckCommand",
+        "title": "Trigger triggerSyntaxCheckCommandt"
       }
     ],
     "keybindings": [
@@ -48,6 +53,11 @@
       {
         "command": "extension.runEsmini",
         "key": "ctrl+q",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "extension.triggerSyntaxCheckCommand",
+        "key": "ctrl+w",
         "when": "editorTextFocus"
       }
     ],

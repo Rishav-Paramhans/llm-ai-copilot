@@ -14,9 +14,6 @@ const {
     InitializeResult
 } = require('vscode-languageserver');
 const { openScenarioCompletionItems, openDriveCompletionItems } = require('./methods/openScenarioDocument/completion');
-
-
-
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments();
 const { exit } = require('./methods/exit.js')
@@ -24,26 +21,35 @@ const xml2js = require('xml2js'); // Import XML parsing library
 
 console.log('Language server is starting...');
 
-// Connection initialization
 connection.onInitialize((params) => {
     console.log('Server initialized');
 
-    const result = {
-        capabilities: {
-            textDocumentSync: TextDocumentSyncKind.Incremental,
-            completionProvider: {
-                resolveProvider: true,
-                triggerCharacters: ['<', ' ']
+    const capabilities = {
+        textDocumentSync: TextDocumentSyncKind.Incremental,
+        completionProvider: {
+            resolveProvider: true,
+            triggerCharacters: ['<', ';']  // Ensure trigger characters are correctly set
+        },
+        textDocument: {
+            synchronization: {
+                didChange: true,
+                didOpen: true,
+                willSave: true,
+                willSaveWaitUntil: true,
+                didSave: true,
+                didClose: true
             }
         }
     };
-    return result;
+
+    return { capabilities };
 });
 connection.onInitialized(() => {
     console.log('Language server fully initialized');
 });
 // Document content change handler
 documents.onDidChangeContent(change => {
+    console.log('Document changes')
     console.log(`Document changed: ${change.document.uri}`);
     const textDocument = change.document;
     const content = textDocument.getText();
@@ -207,5 +213,32 @@ connection.onDidOpenTextDocument(async (params) => {
         }
     } catch (error) {
         console.error('Error parsing XML:', error);
+    }
+});
+// Listen for custom notification from client
+connection.onNotification('onDidChangeContentTriggered', (params) => {
+    // Retrieve the URI from the client request
+    let { uri } = params;
+    console.log('Received onDidChangeContentTriggered with URI:', uri);
+    
+    // Find the corresponding document
+    let document = documents.get(uri);
+    if (document) {
+        // Simulate a change in content (replace with your actual logic)
+        let change = {
+            document: document,
+            contentChanges: [{
+                text: 'Simulated content change',
+                range: {
+                    start: { line: 0, character: 0 },
+                    end: { line: 0, character: 0 }
+                }
+            }]
+        };
+        
+        // Trigger onDidChangeContent handler
+        documents.onDidChangeContent(change);
+    } else {
+        console.error('Document not found:', uri);
     }
 });

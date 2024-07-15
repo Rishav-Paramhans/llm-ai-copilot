@@ -23,7 +23,7 @@
    </RoadNetwork>
    <Entities>
       <ScenarioObject name="Ego">
-         <CatalogReference catalogName="VehicleCatalog" entryName="$EgoVehicle"/>
+         <CatalogReference catalogName="VehicleCatalog" entryName="$EgoVehicle"/> PPPP
       </ScenarioObject>
    </Entities>
    <Storyboard>
@@ -72,11 +72,15 @@
          <Act name="act" />
       </Story>
       <StopTrigger>
+      
          <ConditionGroup>
             <Condition name="SwarmStopTrigger" delay="0" conditionEdge="none">
                <ByValueCondition>
                   <SimulationTimeCondition value="60" rule="greaterThan"/>
+
+
                </ByValueCondition>
+
             </Condition>
          </ConditionGroup>
       </StopTrigger>
