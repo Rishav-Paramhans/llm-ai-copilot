@@ -199,6 +199,20 @@ function activate(context) {
     context.subscriptions.push(disposable);
     context.subscriptions.push(selectXOSCFile);
     context.subscriptions.push(runEsmini);
+
+    // Create status bar items
+    createStatusBarItem('extension.getLocalCopilotSuggestions', 'Get Local Copilot Suggestions', '$(light-bulb) *Copilot*', vscode.StatusBarAlignment.Left, 100, 'yellow');
+    createStatusBarItem('extension.runEsmini', 'Run esmini', '$(play) *Run esmini*', vscode.StatusBarAlignment.Left, 101, 'green');
+}
+
+    function createStatusBarItem(command, tooltip, text, alignment, priority, color) {
+        let statusBarItem = vscode.window.createStatusBarItem(alignment, priority);
+        statusBarItem.command = command;
+        statusBarItem.tooltip = tooltip;
+        statusBarItem.text = text;
+        statusBarItem.color = color;
+        statusBarItem.show();
+        vscode.commands.executeCommand('setContext', 'extension.statusBarItem', statusBarItem);
 }
 
 function deactivate() {
