@@ -17,7 +17,8 @@
     "onCommand:extension.runEsmini",
     "onLanguage:openscenario",
     "onLanguage:opendrive",
-    "onCommand:extension.triggerSyntaxCheckCommand"
+    "onCommand:extension.triggerSyntaxCheckCommand",
+    "onStartupFinished"
   ],
   "main": "./extension/src/extension.js",
   "contributes": {

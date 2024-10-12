@@ -201,8 +201,8 @@ function activate(context) {
     context.subscriptions.push(runEsmini);
 
     // Create status bar items
-    createStatusBarItem('extension.getLocalCopilotSuggestions', 'Get Local Copilot Suggestions', '$(light-bulb) *Copilot*', vscode.StatusBarAlignment.Left, 100, 'yellow');
-    createStatusBarItem('extension.runEsmini', 'Run esmini', '$(play) *Run esmini*', vscode.StatusBarAlignment.Left, 101, 'green');
+    createStatusBarItem('extension.getLocalCopilotSuggestions', 'Get Local Copilot Suggestions', '$(light-bulb) OennX-Copilot', vscode.StatusBarAlignment.Left, 100, 'yellow');
+    createStatusBarItem('extension.runEsmini', 'Run esmini', '$(play) Run esmini', vscode.StatusBarAlignment.Left, 101, 'green');
 }
 
     function createStatusBarItem(command, tooltip, text, alignment, priority, color) {
