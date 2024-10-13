@@ -18,6 +18,9 @@ const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments();
 const { exit } = require('./methods/exit.js')
 const xml2js = require('xml2js'); // Import XML parsing library
+const fs = require('fs');
+const { validate } = require('jsonschema');
+const { runDiagnostics } = require('./methods/openScenarioDocument/diagnostic.js');  // Import the diagnostics function
 
 console.log('Language server is starting...');
 
@@ -100,7 +103,6 @@ async function validateTextDocument(textDocument) {
 
     connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 }
-
 
 documents.onDidClose((event) => {
     console.log('Document closed:', event.document.uri);
