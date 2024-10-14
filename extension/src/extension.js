@@ -195,7 +195,21 @@ function activate(context) {
             vscode.window.showInformationMessage('Please select a .xosc file.');
         }
     });
+    let runDiagnosticsCommand = vscode.commands.registerCommand('extension.runDiagnostics', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const document = editor.document;
+    
+            // Send a request to the language server to run diagnostics
+            client.sendRequest('runDiagnosticsCommand', {
+                uri: document.uri.toString()  // Send the document URI to the language server
+            });
+        } else {
+            vscode.window.showErrorMessage('No active editor found.');
+        }
+    });
 
+    context.subscriptions.push(runDiagnosticsCommand);
     context.subscriptions.push(disposable);
     context.subscriptions.push(selectXOSCFile);
     context.subscriptions.push(runEsmini);
@@ -203,6 +217,7 @@ function activate(context) {
     // Create status bar items
     createStatusBarItem('extension.getLocalCopilotSuggestions', 'Get Local Copilot Suggestions', '$(light-bulb) OennX-Copilot', vscode.StatusBarAlignment.Left, 100, 'yellow');
     createStatusBarItem('extension.runEsmini', 'Run esmini', '$(play) Run esmini', vscode.StatusBarAlignment.Left, 101, 'green');
+    createStatusBarItem('extension.runDiagnostics', 'Run Diagnostics', '$(debug) Run Diagnostics', vscode.StatusBarAlignment.Left, 101, 'orange');
 }
 
     function createStatusBarItem(command, tooltip, text, alignment, priority, color) {
