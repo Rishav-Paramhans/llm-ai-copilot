@@ -106,6 +106,7 @@ function customLogicChecks(parsedScenario) {
 async function runDiagnostics(textDocument) {
     const text = textDocument.getText();
     const diagnostics = [];
+    console.log("Run diagnostics started")
 
     try {
         // Parse the XML content to JSON

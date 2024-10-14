@@ -58,6 +58,7 @@ documents.onDidChangeContent(change => {
     const content = textDocument.getText();
     // Validate the document whenever content changes
     validateTextDocument(textDocument);
+    
     xml2js.parseString(content, (err, result) => {
         if (err) {
             console.error('XML parsing error:', err);
@@ -242,5 +243,32 @@ connection.onNotification('onDidChangeContentTriggered', (params) => {
         documents.onDidChangeContent(change);
     } else {
         console.error('Document not found:', uri);
+    }
+});
+
+
+connection.onRequest('runDiagnosticsCommand', () => {
+    // Get the active document from the TextDocuments instance
+    const activeDocuments = documents.all(); // Gets all currently open documents
+
+    if (activeDocuments.length > 0) {
+        // Assuming the first document is the active one
+        const textDocument = activeDocuments[0];
+
+        console.log(`Running diagnostics on active document: ${textDocument.uri}`);
+
+        // Fetch the content of the document
+        const content = textDocument.getText();
+
+        // Call the runDiagnostics function (modify as per your implementation)
+        runDiagnostics(content).then(diagnostics => {
+            // Send diagnostics to the client
+            connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+            console.log('Diagnostics sent to client');
+        }).catch(error => {
+            console.error('Error running diagnostics:', error);
+        });
+    } else {
+        console.log('No active documents found.');
     }
 });

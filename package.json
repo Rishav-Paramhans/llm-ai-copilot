@@ -18,7 +18,8 @@
     "onLanguage:openscenario",
     "onLanguage:opendrive",
     "onCommand:extension.triggerSyntaxCheckCommand",
-    "onStartupFinished"
+    "onCommand:extension.runDiagnostics",
+    "onStartupFinished" 
   ],
   "main": "./extension/src/extension.js",
   "contributes": {
@@ -42,7 +43,12 @@
       {
         "command": "extension.triggerSyntaxCheckCommand",
         "title": "Trigger triggerSyntaxCheckCommandt"
+      },
+      {
+        "command": "extension.runDiagnostics",
+        "title": "Run Diagnostics"
       }
+
     ],
     "keybindings": [
       {
@@ -59,6 +65,11 @@
       {
         "command": "extension.triggerSyntaxCheckCommand",
         "key": "ctrl+w",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "extension.runDiagnostics",
+        "key": "ctrl+d",
         "when": "editorTextFocus"
       }
     ],
